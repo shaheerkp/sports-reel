@@ -88,8 +88,8 @@ export async function uploadCelebrityImagesToS3(
       if (imageUrl) {
         uploadedUrls.push(imageUrl);
 
-        // Save to temp folder
-        const tempDir = path.join(__dirname, "../../../temp");
+        // Save to tmp folder
+        const tempDir = path.join(__dirname, "../../../tmp");
         const filePath = path.join(tempDir, filename);
         fs.mkdirSync(tempDir, { recursive: true });
         fs.writeFileSync(filePath, Buffer.from(imageRes.data));

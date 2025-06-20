@@ -2,17 +2,17 @@ import path from "path";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 
-// Step 0: Define image list and temp directory
+// Step 0: Define image list and tmp directory
 
 
-const tempDir = path.resolve('temp');
+const tempDir = path.resolve('tmp');
 
-// Make sure temp folder exists
+// Make sure tmp folder exists
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir,{ recursive: true });
 }
 
-// Resolve full paths for image and audio files (assume all in /temp now)
+// Resolve full paths for image and audio files (assume all in /tmp now)
 
 
 // Step 1: Create clips for each image
@@ -66,7 +66,7 @@ export function createClip(name: string): Promise<void> {
 // Step 2: Concatenate all clips
 function concatenateClips(name: string, clips: string[]): Promise<void> {
   const concatList = path.join(tempDir, 'concat_list.txt');
-  const tempVideo = path.join(tempDir, `${name}-temp.mp4`);
+  const tempVideo = path.join(tempDir, `${name}-tmp.mp4`);
 
   fs.writeFileSync(concatList, clips.map(c => `file '${c}'`).join('\n'));
 
