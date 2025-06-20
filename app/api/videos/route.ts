@@ -1,6 +1,6 @@
 // app/api/videos/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { synthesizeSpeechToS3 } from "@/lib/aws";
+import { getTempS3Url, synthesizeSpeechToS3 } from "@/lib/aws";
 import { uploadCelebrityImagesToS3 } from "@/lib/image";
 import { getVideoUrl } from "@/lib/video";
 import { generateScriptWithGemini } from "@/lib/gemini";
@@ -30,7 +30,6 @@ export async function GET() {
   return NextResponse.json(finalVideo);
 }
 
-
 export async function POST(req: NextRequest) {
   try {
     console.time("total");
@@ -58,7 +57,9 @@ export async function POST(req: NextRequest) {
     console.timeEnd("uploadCelebrityImagesToS3");
 
     console.time("getVideoUrl");
-    const { url: videoUrl } = await getVideoUrl(name);
+    getVideoUrl(name);
+    const videoUrl = await getTempS3Url(name);
+
     console.timeEnd("getVideoUrl");
 
     // One batch update to MongoDB
@@ -76,7 +77,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ videoUrl });
   } catch (error) {
     console.error("Error in POST handler:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
-

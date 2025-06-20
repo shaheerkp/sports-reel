@@ -23,14 +23,21 @@ const CreateReelPage: React.FC = () => {
         body: JSON.stringify({ name: title }),
       });
 
-      const data:{videoUrl:string,message:string} = await res.json();
+      const data: { videoUrl: string; message: string } = await res.json();
 
       if (!res.ok || !data.videoUrl) {
         throw new Error(data.message || "Invalid response from API");
       }
 
-      setVideoUrl(data.videoUrl);
-      setResponseMessage("✅ Reel created successfully!");
+      setResponseMessage("✅ Reel meta generated successfully! ⏳ Preparing video...");
+      setLoading(true)
+
+      // Wait for 60 seconds before showing the video
+      setTimeout(() => {
+        setVideoUrl(data.videoUrl);
+        setResponseMessage("🎬 Video ready to watch!");
+        setLoading(false);
+      }, 60000);
     } catch (error: unknown) {
       console.error("Video creation error:", error);
       if (error instanceof Error) {
@@ -38,8 +45,7 @@ const CreateReelPage: React.FC = () => {
       } else {
         setResponseMessage("❌ An unknown error occurred.");
       }
-    } finally {
-      setLoading(false);
+       setLoading(false);
     }
   };
 
@@ -62,6 +68,7 @@ const CreateReelPage: React.FC = () => {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter reel title"
             required
+            disabled={loading}
           />
         </div>
 
@@ -75,7 +82,10 @@ const CreateReelPage: React.FC = () => {
           {loading ? "Generating video..." : "Submit"}
         </button>
 
-        <p>{loading ? "please dont close the window" : ""}</p>
+        {loading && (
+          <p className="text-sm text-gray-500 mt-2">⏳ Please don’t close the window. Processing your reel...</p>
+        )}
+
         {responseMessage && (
           <div className="text-sm text-gray-700 mt-4 bg-gray-100 p-3 rounded">
             {responseMessage}

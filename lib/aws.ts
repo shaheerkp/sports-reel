@@ -76,7 +76,7 @@ export async function saveImagestoS3(uploadParams: {
   Key: string;
   Body: Buffer;
   ContentType: string;
-  ACL?: string,
+  ACL?: string;
 }) {
   try {
     await s3
@@ -174,4 +174,8 @@ export async function uploadVideoTos3(name: string) {
   } catch (error) {
     console.log(error);
   }
+}
+export async function getTempS3Url(name: string) {
+  await new Promise((resolve) => setTimeout(resolve, 10000)); // wait for 10 seconds
+  return `https://${BUCKET}.s3.ap-south-1.amazonaws.com/videos/${name}.mp4`;
 }
