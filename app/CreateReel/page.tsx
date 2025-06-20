@@ -1,38 +1,43 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const CreateReelPage: React.FC = () => {
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
-  const [videoUrl, setVideoUrl] = useState('');
-  const [responseMessage, setResponseMessage] = useState('');
+  const [videoUrl, setVideoUrl] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setResponseMessage('');
-    setVideoUrl('');
+    setResponseMessage("");
+    setVideoUrl("");
 
     try {
-      const res = await fetch('/api/videos', {
-        method: 'POST',
+      const res = await fetch("/api/videos", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: title }),
       });
 
-      const data = await res.json();
+      const data:{videoUrl:string,message:string} = await res.json();
 
       if (!res.ok || !data.videoUrl) {
-        throw new Error(data.message || 'Invalid response from API');
+        throw new Error(data.message || "Invalid response from API");
       }
 
       setVideoUrl(data.videoUrl);
-      setResponseMessage('✅ Reel created successfully!');
-    } catch (error: any) {
-      setResponseMessage(`❌ Error: ${error.message}`);
+      setResponseMessage("✅ Reel created successfully!");
+    } catch (error: unknown) {
+      console.error("Video creation error:", error);
+      if (error instanceof Error) {
+        setResponseMessage(`❌ Error: ${error.message}`);
+      } else {
+        setResponseMessage("❌ An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -42,9 +47,14 @@ const CreateReelPage: React.FC = () => {
     <div className="pt-24 px-6 max-w-2xl mx-auto">
       <h2 className="text-3xl font-bold mb-6 text-gray-800">Create New Reel</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-xl shadow-md">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-white p-6 rounded-xl shadow-md"
+      >
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Title
+          </label>
           <input
             type="text"
             className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -55,19 +65,17 @@ const CreateReelPage: React.FC = () => {
           />
         </div>
 
-
-
         <button
           type="submit"
           disabled={loading}
           className={`bg-blue-600 text-white px-6 py-2 rounded-md transition ${
-            loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+            loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
           }`}
         >
-          {loading ? 'Generating video...' : 'Submit'}
+          {loading ? "Generating video..." : "Submit"}
         </button>
 
-        <p>{loading?"please dont close the window":""}</p>
+        <p>{loading ? "please dont close the window" : ""}</p>
         {responseMessage && (
           <div className="text-sm text-gray-700 mt-4 bg-gray-100 p-3 rounded">
             {responseMessage}

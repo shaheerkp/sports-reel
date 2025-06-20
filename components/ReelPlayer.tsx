@@ -10,17 +10,17 @@ interface ReelPlayerProps {
 export function ReelPlayer({ src, poster }: ReelPlayerProps) {
   const [ref, inView] = useInView({ threshold: 0.7 });
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  // const [isPlaying, setIsPlaying] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const togglePlay = () => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
       videoRef.current.play();
-      setIsPlaying(true);
+      // setIsPlaying(true);
     } else {
       videoRef.current.pause();
-      setIsPlaying(false);
+      // setIsPlaying(false);
     }
   };
 

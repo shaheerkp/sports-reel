@@ -1,10 +1,8 @@
 // lib/aws.ts
 import AWS from "aws-sdk";
 import { Readable } from "node:stream";
-import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
 import path from "node:path";
-
 
 AWS.config.update({
   region: process.env.AWS_REGION,
@@ -18,7 +16,6 @@ const polly = new AWS.Polly();
 const s3 = new AWS.S3();
 
 const BUCKET = process.env.S3_BUCKET!;
-const tempDir = path.resolve("temp");
 
 export async function synthesizeSpeechToS3(
   text: string,
@@ -33,7 +30,6 @@ export async function synthesizeSpeechToS3(
     Engine: "standard",
     TextType: "ssml",
   };
-
 
   const audioStream: Buffer = await new Promise((resolve, reject) => {
     polly.synthesizeSpeech(params, (err, data) => {
@@ -83,7 +79,13 @@ export async function synthesizeSpeechToS3(
   return `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 }
 
-export async function saveImagestoS3(uploadParams: any) {
+export async function saveImagestoS3(uploadParams: {
+  Bucket: string;
+  Key: string;
+  Body: Buffer;
+  ContentType: string;
+  ACL?: string,
+}) {
   try {
     await s3
       .putObject({

@@ -1,7 +1,16 @@
 import { Reel } from "@/app/models/reel";
 import { connectDB } from "@/lib/mongoose";
 
-export async function updateDataToMongoDb(name: string, data: any) {
+interface ReelData {
+  queries?:string
+  keyWords?:string[]
+  audioUrls?:string
+  imageUrls?:string[]
+  videoUrls?:string
+  generationCompleted?:boolean
+}
+
+export async function updateDataToMongoDb(name: string, data: ReelData) {
   await connectDB();
 
   const updated = await Reel.findOneAndUpdate(

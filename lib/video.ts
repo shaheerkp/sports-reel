@@ -15,7 +15,6 @@ if (!fs.existsSync(tempDir)) {
 // Resolve full paths for image and audio files (assume all in /temp now)
 
 const clips: string[] = [];
-let index = 0;
 
 // Step 1: Create clips for each image
 export function createClip(name: string): Promise<void> {
@@ -24,7 +23,7 @@ export function createClip(name: string): Promise<void> {
     duration: 6
   }));
 
-  const resolvedImages = imageDurations.map(({ file, duration }, index) => ({
+  const resolvedImages = imageDurations.map(({ duration }, index) => ({
     file: path.join(tempDir, `${name}-${index}.jpg`),
     duration,
   }));
@@ -57,7 +56,7 @@ export function createClip(name: string): Promise<void> {
           index++;
           processNextImage();
         })
-        .on('error', (err:any) => reject(err))
+        .on('error', (err:unknown) => reject(err))
         .run();
     }
 
@@ -106,34 +105,4 @@ function addAudio(tempVideo: string, name: string): Promise<void> {
   });
 }
 
-// Step 3: Add audio and finalize video
-// function addAudio(tempVideo: string,name:string) {
-//   const finalOutput = path.join(tempDir, `${name}.mp4`);
-//   const audioFile = path.join(tempDir, `${name}.mp3`);
-
-
-//   ffmpeg()
-//     .input(tempVideo)
-//     .input(audioFile)
-//     .outputOptions(['-c:v copy', '-c:a aac', '-shortest'])
-//     .output(finalOutput)
-//     .on('end', () => {
-//       console.log(`🎉 Final video created at: ${finalOutput}`);
-//       // cleanupTempFiles(tempVideo);
-//     })
-//     .on('error', (err: any) => console.error('Audio error:', err.message))
-//     .run();
-// }
-
-// Step 4: Cleanup all temp files except output.mp4
-function cleanupTempFiles(tempVideo: string) {
-  try {
-    fs.unlinkSync(tempVideo);
-    fs.unlinkSync(path.join(tempDir, 'concat_list.txt'));
-    clips.forEach(file => fs.unlinkSync(file));
-    console.log('🧹 Cleaned up all intermediate files.');
-  } catch (err: any) {
-    console.error('❌ Cleanup error:', err.message);
-  }
-}
 

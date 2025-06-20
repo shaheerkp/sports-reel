@@ -7,16 +7,15 @@ import { generateScriptWithGemini } from "@/lib/gemini";
 import { createName, getAllVideos, getExsistingData, updateDataToMongoDb } from "./services";
 
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   interface video{
     celebrityName:string
     queries:string
     videoUrls:string
 
   }
-  const videos:any=await getAllVideos()
-  console.log(videos,"videoss")
-  const finalVideo=videos.map((ele:any)=>{
+  const videos:video[]=await getAllVideos()
+  const finalVideo=videos.map((ele:video)=>{
     return {
       id:ele.celebrityName,
       title:ele.queries,
@@ -39,7 +38,7 @@ if(exsistingData.generationCompleted){
 }
   await createName(name)
 
-  const scriptData = await generateScriptWithGemini(name);
+  const scriptData:{ssml:string,keyWords:string[]} = await generateScriptWithGemini(name);
 
   const updatedData=await updateDataToMongoDb(name,{queries:scriptData.ssml,keyWords:scriptData.keyWords})
 

@@ -45,15 +45,13 @@ import fs from "fs";
 // }
 
 import axios from "axios";
-import { Readable } from "stream";
-import { v4 as uuidv4 } from "uuid";
 import { saveImagestoS3 } from "./aws";
 
 const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
 const BUCKET_NAME = process.env.S3_BUCKET;
-const UNSPLASH_URL=process.env.UNSPLASH_URL
+const UNSPLASH_URL = process.env.UNSPLASH_URL;
 
-console.log(UNSPLASH_ACCESS_KEY,"UNSPLASH_ACCESS_KEY")
+console.log(UNSPLASH_ACCESS_KEY, "UNSPLASH_ACCESS_KEY");
 
 export async function uploadCelebrityImagesToS3(
   celebrityName: string,
@@ -64,13 +62,10 @@ export async function uploadCelebrityImagesToS3(
 
   for (const [index, query] of queries.entries()) {
     try {
-      const searchRes = await axios.get(
-        UNSPLASH_URL!,
-        {
-          params: { query, per_page: 1 },
-          headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` },
-        }
-      );
+      const searchRes = await axios.get(UNSPLASH_URL!, {
+        params: { query, per_page: 1 },
+        headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` },
+      });
 
       const url = searchRes.data.results[0]?.urls?.full;
       if (!url) {
@@ -82,7 +77,7 @@ export async function uploadCelebrityImagesToS3(
       const filename = `${celebrityName}-${index}.jpg`;
 
       const uploadParams = {
-        Bucket: BUCKET_NAME,
+        Bucket: BUCKET_NAME!,
         Key: `${celebrityName}/${filename}`,
         Body: Buffer.from(imageRes.data),
         ContentType: "image/jpeg",
@@ -100,8 +95,14 @@ export async function uploadCelebrityImagesToS3(
         fs.writeFileSync(filePath, Buffer.from(imageRes.data));
         console.log(`Image file saved temporarily at: ${filePath}`);
       }
-    } catch (err: any) {
-      console.error(`Error for query "${query}": ${err.message}`);
+    } catch (error: unknown) {
+      console.error("Video creation error:", error);
+      if (error instanceof Error) {
+        console.error(`Error for query "${query}": ${error.message}`);
+        throw new Error(error.message)
+      } else {
+         throw new Error("An unknown error occurred.")
+      }
     }
   }
   return uploadedUrls;
