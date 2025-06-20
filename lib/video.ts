@@ -1,5 +1,5 @@
 export async function getVideoUrl(name: string) {
-  const url = `http://13.201.128.201:3001/generatevideo?name=${name}`;
+  const url = `https://ae6b-2406-7400-9a-d6e-1686-8279-b7ae-b556.ngrok-free.app/generatevideo?name=${name}`;
   try {
     console.log("inside get video url");
     const response = await fetch(url);
