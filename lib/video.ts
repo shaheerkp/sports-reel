@@ -5,7 +5,7 @@ import ffmpeg from "fluent-ffmpeg";
 // Step 0: Define image list and tmp directory
 
 
-const tempDir = path.resolve('tmp');
+const tempDir = path.resolve('/tmp');
 
 // Make sure tmp folder exists
 if (!fs.existsSync(tempDir)) {

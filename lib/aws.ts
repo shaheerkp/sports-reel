@@ -68,7 +68,9 @@ export async function synthesizeSpeechToS3(
       ContentType: "audio/mpeg",
     })
     .promise();
-  const tempDir = path.join(__dirname, "../../../tmp");
+  // const tempDir = path.join(__dirname, "../../../tmp");
+  const tempDir = "/tmp"
+
   const fileName = `${name}.mp3`;
   const filePath = path.join(tempDir, fileName);
   fs.mkdirSync(tempDir, { recursive: true });
@@ -154,7 +156,7 @@ export async function getSignedUrl(
 
 export async function uploadVideoTos3(name: string) {
   try {
-    const tempDir = path.resolve("tmp", `${name}.mp4`);
+    const tempDir = path.resolve("/tmp", `${name}.mp4`);
 
     const fileStream = fs.createReadStream(tempDir);
     console.log(fileStream);
@@ -167,7 +169,7 @@ export async function uploadVideoTos3(name: string) {
       })
       .promise();
 
-    const toDelete = path.resolve("tmp");
+    const toDelete = path.resolve("/tmp");
     console.log(toDelete, "toDelete");
     const files = fs.readdirSync(toDelete);
     console.log(files, "files");
