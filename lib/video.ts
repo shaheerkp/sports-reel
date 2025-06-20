@@ -9,7 +9,7 @@ const tempDir = path.resolve('temp');
 
 // Make sure temp folder exists
 if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir);
+  fs.mkdirSync(tempDir,{ recursive: true });
 }
 
 // Resolve full paths for image and audio files (assume all in /temp now)
