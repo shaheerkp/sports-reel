@@ -1,7 +1,7 @@
 
 export async function getVideoUrl(name: string) {
   try {
-    console.log( `http://13.201.128.201:3001/generatevideo?name=${name}`,"urlllll")
+    console.log( `http://13.201.128.201:3001/generatevideo?name=${name}`,"url")
     const response = await fetch(
       `http://13.201.128.201:3001/generatevideo?name=${name}`
     );
