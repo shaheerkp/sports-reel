@@ -1,6 +1,4 @@
 // import axios from 'axios';
-import path from "path";
-import fs from "fs";
 
 // export async function fetchCelebrityImage(celebrityName: string): Promise<string> {
 //   const UNSPLASH_ACCESS_KEY = "2VKA61HyTXj16oX3kRXd_KM-mRHWsSHJqXPL1PHY3MQ"

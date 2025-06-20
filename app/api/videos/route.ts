@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
 
     console.log(uploadCelebrityImagesToS3Data,"uploadCelebrityImagesToS3Data")
 
-    const videoUrl: any = await getVideoUrl(name);
+    const videoUrl: {url:string} = await getVideoUrl(name);
 
     console.log(videoUrl.url, "videoUrl");
     console.log(typeof videoUrl.url, "videoUrl");
