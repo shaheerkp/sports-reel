@@ -22,7 +22,6 @@ export async function synthesizeSpeechToS3(
   name: string,
   voiceId = "Matthew"
 ) {
-  console.log(text);
   const params: AWS.Polly.SynthesizeSpeechInput = {
     OutputFormat: "mp3",
     Text: text,
@@ -68,15 +67,6 @@ export async function synthesizeSpeechToS3(
       ContentType: "audio/mpeg",
     })
     .promise();
-  // const tempDir = path.join(__dirname, "../../../tmp");
-  const tempDir = "/tmp"
-
-  const fileName = `${name}.mp3`;
-  const filePath = path.join(tempDir, fileName);
-  fs.mkdirSync(tempDir, { recursive: true });
-
-  fs.writeFileSync(filePath, audioStream);
-  console.log(`Audio file saved temporarily at: ${filePath}`);
 
   return `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 }

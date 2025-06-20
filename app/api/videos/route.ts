@@ -30,62 +30,53 @@ export async function GET() {
   return NextResponse.json(finalVideo);
 }
 
+
 export async function POST(req: NextRequest) {
   try {
+    console.time("total");
     const { name } = await req.json();
 
-    const exsistingData = await getExsistingData(name);
+    const existingData = await getExsistingData(name);
 
-    if (exsistingData.generationCompleted) {
-      return NextResponse.json({ videoUrl: exsistingData.videoUrls });
+    // Return early if video is already generated
+    if (existingData.generationCompleted) {
+      return NextResponse.json({ videoUrl: existingData.videoUrls });
     }
+
     await createName(name);
 
-    const scriptData: { ssml: string; keyWords: string[] } =
-      await generateScriptWithGemini(name);
+    console.time("generateScriptWithGemini");
+    const { ssml, keyWords } = await generateScriptWithGemini(name);
+    console.timeEnd("generateScriptWithGemini");
 
-    const updatedData = await updateDataToMongoDb(name, {
-      queries: scriptData.ssml,
-      keyWords: scriptData.keyWords,
-    });
+    console.time("synthesizeSpeechToS3");
+    const audioUrl = await synthesizeSpeechToS3(ssml, name);
+    console.timeEnd("synthesizeSpeechToS3");
 
-    console.log("updated data after generateScriptWithGemini ", updatedData);
+    console.time("uploadCelebrityImagesToS3");
+    const imageUrls = await uploadCelebrityImagesToS3(name, keyWords);
+    console.timeEnd("uploadCelebrityImagesToS3");
 
-    const audioUrl = await synthesizeSpeechToS3(scriptData.ssml, name);
-    const updatedDataSynthesizeSpeechToS3 = await updateDataToMongoDb(name, {
+    console.time("getVideoUrl");
+    const { url: videoUrl } = await getVideoUrl(name);
+    console.timeEnd("getVideoUrl");
+
+    // One batch update to MongoDB
+    await updateDataToMongoDb(name, {
+      queries: ssml,
+      keyWords,
       audioUrls: audioUrl,
-    });
-
-    console.log(
-      "updated data after generateScriptWithGemini ",
-      updatedDataSynthesizeSpeechToS3
-    );
-
-    const imageUrl = await uploadCelebrityImagesToS3(name, scriptData.keyWords);
-
-    const uploadCelebrityImagesToS3Data = await updateDataToMongoDb(name, {
-      imageUrls: imageUrl,
-    });
-
-
-    console.log(uploadCelebrityImagesToS3Data,"uploadCelebrityImagesToS3Data")
-
-    const videoUrl: {url:string} = await getVideoUrl(name);
-
-    console.log(videoUrl.url, "videoUrl");
-    console.log(typeof videoUrl.url, "videoUrl");
-
-
-    const finalUrlUpdate = await updateDataToMongoDb(name, {
-      videoUrls: videoUrl.url,
+      imageUrls,
+      videoUrls: videoUrl,
       generationCompleted: true,
     });
 
-    console.log(finalUrlUpdate, "finalUrlUpdate");
+    console.timeEnd("total");
 
-     return NextResponse.json({ videoUrl: videoUrl.url });
+    return NextResponse.json({ videoUrl });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error });
+    console.error("Error in POST handler:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+

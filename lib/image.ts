@@ -56,54 +56,42 @@ export async function uploadCelebrityImagesToS3(
   keyWords: string[]
 ): Promise<string[]> {
   const uploadedUrls: string[] = [];
-  const queries = keyWords;
 
-  for (const [index, query] of queries.entries()) {
+  for (const [index, query] of keyWords.entries()) {
     try {
-      const searchRes = await axios.get(UNSPLASH_URL!, {
+      const { data: searchData } = await axios.get(UNSPLASH_URL!, {
         params: { query, per_page: 1 },
         headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` },
       });
 
-      const url = searchRes.data.results[0]?.urls?.full;
-      if (!url) {
-        console.warn(`No image found for "${query}"`);
+      const imageUrl = searchData?.results?.[0]?.urls?.full;
+      if (!imageUrl) {
+        console.warn(`No image found for keyword "${query}"`);
         continue;
       }
 
-      const imageRes = await axios.get(url, { responseType: "arraybuffer" });
-      const filename = `${celebrityName}-${index}.jpg`;
+      const { data: imageBuffer } = await axios.get(imageUrl, { responseType: "arraybuffer" });
 
+      const filename = `${celebrityName}-${index}.jpg`;
       const uploadParams = {
         Bucket: BUCKET_NAME!,
         Key: `${celebrityName}/${filename}`,
-        Body: Buffer.from(imageRes.data),
+        Body: Buffer.from(imageBuffer),
         ContentType: "image/jpeg",
         ACL: "public-read",
       };
 
-      const imageUrl = await saveImagestoS3(uploadParams);
-      if (imageUrl) {
-        uploadedUrls.push(imageUrl);
+      const s3Url = await saveImagestoS3(uploadParams);
+      if (s3Url) uploadedUrls.push(s3Url);
 
-        // Save to tmp folder
-        // const tempDir = path.join(__dirname, "../../../tmp");
-        // const tempDir = "/tmp"
-
-        // const filePath = path.join(tempDir, filename);
-        // fs.mkdirSync(tempDir, { recursive: true });
-        // fs.writeFileSync(filePath, Buffer.from(imageRes.data));
-        // console.log(`Image file saved temporarily at: ${filePath}`);
-      }
-    } catch (error: unknown) {
-      console.error("Video creation error:", error);
-      if (error instanceof Error) {
-        console.error(`Error for query "${query}": ${error.message}`);
-        throw new Error(error.message)
-      } else {
-         throw new Error("An unknown error occurred.")
-      }
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : "Unknown error";
+      console.error(`Error processing keyword "${query}": ${errMsg}`);
+      // Optional: decide if you want to continue or fail-fast
+      continue; // or `throw error;` if you prefer to exit
     }
   }
+
   return uploadedUrls;
 }
+
