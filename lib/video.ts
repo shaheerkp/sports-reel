@@ -14,7 +14,6 @@ if (!fs.existsSync(tempDir)) {
 
 // Resolve full paths for image and audio files (assume all in /temp now)
 
-const clips: string[] = [];
 
 // Step 1: Create clips for each image
 export function createClip(name: string): Promise<void> {

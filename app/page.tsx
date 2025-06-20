@@ -23,7 +23,7 @@ export default function HomePage() {
        <Header/>
         <div>
      
-      {videos.map((video: any) => (
+      {videos.map((video: {id:string,url:string}) => (
         <ReelPlayer key={video.id} src={video.url} />
       ))}
     </div>
