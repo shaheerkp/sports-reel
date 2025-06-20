@@ -1,8 +1,8 @@
 // app/api/videos/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { synthesizeSpeechToS3, uploadVideoTos3 } from "@/lib/aws";
+import { synthesizeSpeechToS3 } from "@/lib/aws";
 import { uploadCelebrityImagesToS3 } from "@/lib/image";
-import { createClip } from "@/lib/video";
+import { getVideoUrl } from "@/lib/video";
 import { generateScriptWithGemini } from "@/lib/gemini";
 import {
   createName,
@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
 
     const exsistingData = await getExsistingData(name);
 
-    // if(!exsistingData)
     if (exsistingData.generationCompleted) {
       return NextResponse.json({ videoUrl: exsistingData.videoUrls });
     }
@@ -68,25 +67,25 @@ export async function POST(req: NextRequest) {
       imageUrls: imageUrl,
     });
 
-    console.log(uploadCelebrityImagesToS3Data, "uploadCelebrityImagesToS3Data");
 
-    console.log("before the mp4 creation");
+    console.log(uploadCelebrityImagesToS3Data,"uploadCelebrityImagesToS3Data")
 
-    await createClip(name);
-    console.log("after the mp4 creation");
-    const videoUrl = await uploadVideoTos3(name);
-    console.log(videoUrl, "videoUrl");
+    const videoUrl: any = await getVideoUrl(name);
+
+    console.log(videoUrl.url, "videoUrl");
+    console.log(typeof videoUrl.url, "videoUrl");
+
 
     const finalUrlUpdate = await updateDataToMongoDb(name, {
-      videoUrls: videoUrl,
+      videoUrls: videoUrl.url,
       generationCompleted: true,
     });
 
     console.log(finalUrlUpdate, "finalUrlUpdate");
 
-    return NextResponse.json({ videoUrl });
+     return NextResponse.json({ videoUrl: videoUrl.url });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return NextResponse.json({ error });
   }
 }

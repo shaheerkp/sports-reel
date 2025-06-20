@@ -90,12 +90,12 @@ export async function uploadCelebrityImagesToS3(
 
         // Save to tmp folder
         // const tempDir = path.join(__dirname, "../../../tmp");
-        const tempDir = "/tmp"
+        // const tempDir = "/tmp"
 
-        const filePath = path.join(tempDir, filename);
-        fs.mkdirSync(tempDir, { recursive: true });
-        fs.writeFileSync(filePath, Buffer.from(imageRes.data));
-        console.log(`Image file saved temporarily at: ${filePath}`);
+        // const filePath = path.join(tempDir, filename);
+        // fs.mkdirSync(tempDir, { recursive: true });
+        // fs.writeFileSync(filePath, Buffer.from(imageRes.data));
+        // console.log(`Image file saved temporarily at: ${filePath}`);
       }
     } catch (error: unknown) {
       console.error("Video creation error:", error);
