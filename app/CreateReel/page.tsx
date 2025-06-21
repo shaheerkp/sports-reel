@@ -43,9 +43,9 @@ const CreateReelPage: React.FC = () => {
     } catch (error: unknown) {
       console.error("Video creation error:", error);
       if (error instanceof Error) {
-        setResponseMessage(`❌ Error: ${error.message}`);
+        setResponseMessage(`❌ Error: ${error.message}, Please retry`);
       } else {
-        setResponseMessage("❌ An unknown error occurred.");
+        setResponseMessage("❌ An unknown error occurred. Please retry");
       }
       setLoading(false);
     }
