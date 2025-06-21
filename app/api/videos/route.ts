@@ -10,30 +10,46 @@ import {
   getExsistingData,
   updateDataToMongoDb,
 } from "./services";
+interface Video {
+  celebrityName: string;
+  queries: string;
+  videoUrls: string;
+}
 
-export async function GET() {
-  interface video {
-    celebrityName: string;
-    queries: string;
-    videoUrls: string;
-  }
-  const videos: video[] = await getAllVideos();
-  const finalVideo = videos.map((ele: video) => {
-    return {
-      id: ele.celebrityName,
-      title: ele.queries,
-      url: ele.videoUrls,
-      duration: 30,
-    };
+interface VideoResponse {
+  videos: Video[];
+  currentPage: number;
+  totalItems: number;
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+
+  const limit = parseInt(searchParams.get("limit") || "10");
+  const skip = parseInt(searchParams.get("skip") || "0");
+  const page = Math.floor(skip / limit) + 1;
+
+  const videos: VideoResponse = await getAllVideos(page, limit);
+
+  const finalVideo = videos.videos.map((ele: Video) => ({
+    id: ele.celebrityName,
+    title: ele.queries,
+    url: ele.videoUrls,
+    duration: 30,
+  }));
+
+  return NextResponse.json({
+    items: finalVideo,
+    currentPage: videos.currentPage,
+    totalItems: videos.totalItems,
+    totalPages: Math.ceil(videos.totalItems / limit),
   });
-
-  return NextResponse.json(finalVideo);
 }
 
 export async function POST(req: NextRequest) {
   try {
     console.time("total");
-    const { name } = await req.json();
+    const { name, voice } = await req.json();
 
     const existingData = await getExsistingData(name);
 
@@ -49,7 +65,7 @@ export async function POST(req: NextRequest) {
     console.timeEnd("generateScriptWithGemini");
 
     console.time("synthesizeSpeechToS3");
-    const audioUrl = await synthesizeSpeechToS3(ssml, name);
+    const audioUrl = await synthesizeSpeechToS3(ssml, name, voice);
     console.timeEnd("synthesizeSpeechToS3");
 
     console.time("uploadCelebrityImagesToS3");

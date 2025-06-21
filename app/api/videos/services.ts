@@ -42,13 +42,26 @@ export async function createName(name: string) {
   return newReel;
 }
 
-export async function getAllVideos() {
+export async function getAllVideos(page: number = 1, limit: number = 10) {
   await connectDB();
-  const allVideos = await Reel.find({ generationCompleted: true }).sort({
-    _id: -1,
-  });
-  return allVideos;
+
+  const skip = (page - 1) * limit;
+
+  const allVideos = await Reel.find({ generationCompleted: true })
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Reel.countDocuments({ generationCompleted: true });
+
+  return {
+    videos: allVideos,
+    currentPage: page,
+    totalPages: Math.ceil(total / limit),
+    totalItems: total,
+  };
 }
+
 
 export async function getExsistingData(name: string) {
   await connectDB();

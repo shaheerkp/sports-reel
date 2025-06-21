@@ -38,7 +38,7 @@ export function ReelPlayer({ src, poster }: ReelPlayerProps) {
             alt="thumbnail"
             className="w-full h-full object-cover blur-md brightness-75"
           />
-          <div className="absolute text-white text-sm font-medium animate-pulse">
+          <div className="absolute  text-white text-sm font-medium animate-pulse">
             Loading...
           </div>
         </div>
@@ -49,7 +49,7 @@ export function ReelPlayer({ src, poster }: ReelPlayerProps) {
         <video
           ref={videoRef}
           src={src}
-          className={`transition-opacity duration-500 rounded-xl shadow-2xl z-20 ${
+          className={`transition-opacity duration-500 rounded-xl shadow-2xl z-20 border-4 border-white  ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           } max-w-full max-h-full`}
           autoPlay
