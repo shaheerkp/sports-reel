@@ -22,7 +22,7 @@ export async function synthesizeSpeechToS3(
   name: string,
   voiceId = "Matthew"
 ) {
-  const selectedVoice = voiceId === "male" ? "Mattew" : "Joanna";
+  const selectedVoice = voiceId === "male" ? "Matthew" : "Joanna";
   const params: AWS.Polly.SynthesizeSpeechInput = {
     OutputFormat: "mp3",
     Text: text,
