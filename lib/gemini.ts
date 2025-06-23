@@ -1,23 +1,23 @@
 // lib/gemini.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-try {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-  export async function generateScriptWithGemini(athleteName: string) {
+export async function generateScriptWithGemini(athleteName: string) {
+  try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are an expert scriptwriter and audio producer creating a short, inspirational sports narrative.
-  
-  Your task is to generate a compelling 28-second script chronicling the journey of ${athleteName}. The script must be formatted in SSML (Speech Synthesis Markup Language) for use with an Amazon Polly standard neural voice (like Matthew or Joanna) as an object 
-  {
-  ssml:generatedssml,
-  keyWords:[five key words to generate images related to script]
-  }
-  return only the object nothing else
-  .
-  
-  `;
+
+Your task is to generate a compelling 28-second script chronicling the journey of ${athleteName}. The script must be formatted in SSML (Speech Synthesis Markup Language) for use with an Amazon Polly standard neural voice (like Matthew or Joanna) as an object 
+{
+ssml:generatedssml,
+keyWords:[five key words to generate images related to script]
+}
+return only the object nothing else
+.
+
+`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -28,8 +28,8 @@ try {
     console.log(json);
 
     return json;
+  } catch (error) {
+    console.error("Error generating script with Gemini:", error);
+    throw new Error("Failed to generate script. Please try again later.");
   }
-} catch (error) {
-  console.error("Error generating script with Gemini:", error);
-  throw error;
 }
